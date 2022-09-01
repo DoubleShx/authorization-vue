@@ -1,0 +1,107 @@
+@font-face {
+    font-family: 'RobotoSlab';
+    src: url('./fonts/RobotoSlab-VariableFont_wght.ttf');
+}
+@font-face {
+    font-family: 'Lobster';
+    src: url('./fonts/Lobster-Regular.ttf');
+}
+
+
+#app {
+    position: relative;
+    background-color: white;
+    width: 100vw;
+    height: 100vh;
+    font-family: RobotoSlab;
+}
+
+.content {
+    transform: translateY(70px);
+    height: calc(100vh - 70px);
+    background-color: #edeef0;
+    display: flex;
+    justify-content: center;
+}
+
+.content .visitor_greeting__card {
+    background: white;
+    min-width: 300px;
+    width: 98%;
+    height: 98%;
+    margin: auto;
+    background: url("https://images.unsplash.com/photo-1509822929063-6b6cfc9b42f2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
+        rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
+    border: 0;
+    display: flex;
+}
+
+.login_wrapper {
+    width: 80%;
+    height: 80%;
+    background: #edeef0;
+    margin: auto;
+    display: flex;
+}
+
+.login_wrapper .left_side {
+    width: 60%;
+    height: 100%;
+    display: flex;
+}
+.login_wrapper .left_side form {
+    margin-top: 50px;
+    width: 100%;
+}
+
+.login_wrapper .left_side div.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    margin: auto;
+    font-family: Lobster;
+}
+.login_wrapper .left_side div.form-group input {
+    font-family: RobotoSlab;
+}
+
+.login_wrapper .right_side {
+    width: 40%;
+    height: 100%;
+    background-color: white;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-family: Lobster;
+}
+
+.login_wrapper h2 {
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.login_wrapper p {
+    font-weight: 500;
+    line-height: 1;
+}
+
+.small_size_text {
+    font-weight: 300;
+    font-size: 14px;
+    color: grey;
+}
+
+@media only screen and (max-width: 992px) {
+    .login_wrapper .left_side {
+        width: 100%;
+    }
+    .login_wrapper .right_side {
+        display: none;
+    }
+  }
