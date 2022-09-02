@@ -8,62 +8,108 @@
       :label-for="'example-input-' + index"
     >
       <b-form-input
+        v-if="item.type !== 'date'"
         :id="'example-input-' + index"
         :name="'example-input-' + index"
         v-model="$v.form[item.title].$model"
         :state="validateState(item.title)"
-        :aria-describedby="'input-'+ index + '-live-feedback'"
+        :aria-describedby="'input-' + index + '-live-feedback'"
         class="mt-1"
+        :type="item.type"
       ></b-form-input>
-      <b-form-invalid-feedback :id="'input-'+ index + '-live-feedback'"
-        >{{item.text}}</b-form-invalid-feedback
-      >
+      <b-form-datepicker
+        v-else
+        :id="'example-input-' + index"
+        :name="'example-input-' + index"
+        locale="Finnish"
+        date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }"
+        v-model="$v.form[item.title].$model"
+        :state="validateState(item.title)"
+        :aria-describedby="'input-' + index + '-live-feedback'"
+        class="mt-1"
+        :type="item.type"
+      ></b-form-datepicker>
+
+      <b-form-invalid-feedback :id="'input-' + index + '-live-feedback'">{{
+        item.text
+      }}</b-form-invalid-feedback>
+      <input
+        v-if="item.checkbox === 'password'"
+        :name="item.title"
+        type="checkbox"
+        @change="passwordShow($event)"
+      />
     </b-form-group>
   </b-form>
 </template>
 
 <script>
 import { validationMixin } from "vuelidate";
-import { required, minLength, helpers } from "vuelidate/lib/validators";
+import {
+  required,
+  minLength,
+  helpers,
+  alpha,
+  numeric,
+  alphaNum,
+  email,
+} from "vuelidate/lib/validators";
+import minValue from 'vuelidate/lib/validators/minValue';
 
 export default {
   mixins: [validationMixin],
-  data() {
-    return {
-      formsArray: [
-        {
-          title: "name",
-          text: "This is a required field and must be at least 3 characters.",
-        },
-        { title: "test", text: "This is a required field" },
-      ],
-      foods: [
-        { value: null, text: "Choose..." },
-        { value: "apple", text: "Apple" },
-        { value: "orange", text: "Orange" },
-      ],
-      form: {
-        name: null,
-        test: null,
-      },
-    };
+  props: {
+    formsArray: {
+      type: Array,
+      required: true,
+    },
+    form: {
+      type: Object,
+      required: true,
+    },
   },
   validations: {
     form: {
-      name: {
+      login: {
         required,
-        strongPassword(password1) {
+        alphaNum,
+        minLength: minLength(6),
+      },
+      email: {
+        email,
+        required,
+      },
+      phone: {
+        numeric,
+        checkPhone(phone) {
           return (
-            /[a-z]/.test(password1) && //checks for a-z
-            /[0-9]/.test(password1) && //checks for 0-9
-            /\W|_/.test(password1) && //checks for special char
-            password1.length >= 8
+            /^998/.test(phone) && //checks for a-z
+            phone.length === 12 //checks for 0-9
           );
         },
       },
-      test: {
+      name: {
+        minLength: minLength(2),
+        alpha,
         required,
-        minLength: 0,
+      },
+      birthday: {
+        isAdultCheck(date) {
+          let selectedDate = new Date(date)
+          let eighteenYearsAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 18))
+          return selectedDate <= eighteenYearsAgo
+        }
+      },
+      password: {
+        required,
+        alphaNum,
+        minLength: minLength(8),
+        strongPassword(password) {
+          return (
+            /[A-Z]/.test(password) && //checks for a-z
+            /[0-9]/.test(password) //checks for 0-9
+          );
+        },
       },
     },
   },
@@ -76,6 +122,21 @@ export default {
     validateState(name) {
       const { $dirty, $error } = this.$v.form[name];
       return $dirty ? !$error : null;
+    },
+    passwordShow(e) {
+      console.log("test");
+      let idx = this.formsArray.findIndex(
+        (item) => item.title === e.target.name
+      );
+      let changedElement = {
+        ...this.formsArray[idx],
+        type: this.formsArray[idx].type === "password" ? "text" : "password",
+      };
+      this.formsArray = [
+        ...this.formsArray.slice(0, idx),
+        changedElement,
+        ...this.formsArray.slice(idx + 1),
+      ];
     },
     resetForm() {
       this.form = {
