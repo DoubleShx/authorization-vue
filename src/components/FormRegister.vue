@@ -1,46 +1,55 @@
 <template>
-  <b-form @submit.stop.prevent="onSubmit">
-    <b-form-group
-      v-for="(item, index) in formsArray"
-      :key="item.title"
-      :id="'example-input-group' + index"
-      :label="item.title | uppercase"
-      :label-for="'example-input-' + index"
-    >
-      <b-form-input
-        v-if="item.type !== 'date'"
-        :id="'example-input-' + index"
-        :name="'example-input-' + index"
-        v-model="$v.form[item.title].$model"
-        :state="validateState(item.title)"
-        :aria-describedby="'input-' + index + '-live-feedback'"
-        class="mt-1"
-        :type="item.type"
-      ></b-form-input>
-      <b-form-datepicker
-        v-else
-        :id="'example-input-' + index"
-        :name="'example-input-' + index"
-        locale="Finnish"
-        date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }"
-        v-model="$v.form[item.title].$model"
-        :state="validateState(item.title)"
-        :aria-describedby="'input-' + index + '-live-feedback'"
-        class="mt-1"
-        :type="item.type"
-      ></b-form-datepicker>
+  <div>
+    <b-form @submit.stop.prevent="onSubmit">
+      <b-form-group
+        v-for="(item, index) in formsArray"
+        :key="item.title"
+        :id="'example-input-group' + index"
+        :label="item.title | uppercase"
+        :label-for="'example-input-' + index"
+      >
+        <b-form-input
+          v-if="item.type !== 'date'"
+          :id="'example-input-' + index"
+          :name="'example-input-' + index"
+          v-model="$v.form[item.title].$model"
+          :state="validateState(item.title)"
+          :aria-describedby="'input-' + index + '-live-feedback'"
+          class="mt-1"
+          :type="item.type"
+        ></b-form-input>
+        <b-form-datepicker
+          v-else
+          :id="'example-input-' + index"
+          :name="'example-input-' + index"
+          locale="Finnish"
+          date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }"
+          v-model="$v.form[item.title].$model"
+          :state="validateState(item.title)"
+          :aria-describedby="'input-' + index + '-live-feedback'"
+          class="mt-1"
+          :type="item.type"
+        ></b-form-datepicker>
 
-      <b-form-invalid-feedback :id="'input-' + index + '-live-feedback'">{{
-        item.text
-      }}</b-form-invalid-feedback>
-      <input
-        v-if="item.checkbox === 'password'"
-        :name="item.title"
-        type="checkbox"
-        @change="passwordShow($event)"
-      />
-    </b-form-group>
-  </b-form>
+        <b-form-invalid-feedback :id="'input-' + index + '-live-feedback'">{{
+          item.text
+        }}</b-form-invalid-feedback>
+        <input
+          v-if="item.checkbox === 'password'"
+          :name="item.title"
+          type="checkbox"
+          @change="passwordShow($event)"
+        />
+      </b-form-group>
+      <h4 v-if="loginError" class="text-danger login_error_message">{{loginError}}</h4>
+    </b-form>
+    <footer>
+      <b-button @click="handleHideModal">Cancel</b-button>
+      <b-button @click="onSubmit" :disabled="loadingForm"
+        >Ok <b-spinner v-if="loadingForm" variant="success" label=""></b-spinner
+      ></b-button>
+    </footer>
+  </div>
 </template>
 
 <script>
@@ -48,16 +57,22 @@ import { validationMixin } from "vuelidate";
 import {
   required,
   minLength,
-  helpers,
   alpha,
   numeric,
   alphaNum,
   email,
 } from "vuelidate/lib/validators";
-import minValue from 'vuelidate/lib/validators/minValue';
 
 export default {
   mixins: [validationMixin],
+  data() {
+    return {
+      loadingForm: false,
+    };
+  },
+  mounted() {
+    this.resetForm()
+  },
   props: {
     formsArray: {
       type: Array,
@@ -67,6 +82,9 @@ export default {
       type: Object,
       required: true,
     },
+    loginError: {
+      type: String,
+    }
   },
   validations: {
     form: {
@@ -95,10 +113,12 @@ export default {
       },
       birthday: {
         isAdultCheck(date) {
-          let selectedDate = new Date(date)
-          let eighteenYearsAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 18))
-          return selectedDate <= eighteenYearsAgo
-        }
+          let selectedDate = new Date(date);
+          let eighteenYearsAgo = new Date(
+            new Date().setFullYear(new Date().getFullYear() - 18)
+          );
+          return selectedDate <= eighteenYearsAgo;
+        },
       },
       password: {
         required,
@@ -124,7 +144,6 @@ export default {
       return $dirty ? !$error : null;
     },
     passwordShow(e) {
-      console.log("test");
       let idx = this.formsArray.findIndex(
         (item) => item.title === e.target.name
       );
@@ -139,22 +158,31 @@ export default {
       ];
     },
     resetForm() {
-      this.form = {
-        name: null,
-        test: null,
-      };
+      this.form = {...Object.keys(this.form).reduce((prevResult, property) => {
+        if (property === 'phone') {
+          return {...prevResult, [property]: '998'}
+        }
+        else {
+          return {...prevResult, [property]: null}
+        }
+      }, {})}
+
+      this.loginError=""
 
       this.$nextTick(() => {
         this.$v.$reset();
       });
     },
+    handleHideModal() {
+      this.$emit("modal-cancel")
+    },
     onSubmit() {
-      this.$v.form.$touch();
-      if (this.$v.form.$anyError) {
-        return;
-      }
-
-      alert("Form submitted!");
+      this.loadingForm = true;
+      setTimeout(() => {
+        this.loadingForm = false;
+        this.$v.form.$touch();
+        this.$emit("modal-ok", this.form, this.$v.form);
+      }, 1000);
     },
   },
 };

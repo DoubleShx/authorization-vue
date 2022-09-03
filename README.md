@@ -15,5 +15,7 @@ npm run serve
 npm run build
 ```
 
+### Deployed version can be checked on url ("https://authorization-vue.vercel.app/")
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).

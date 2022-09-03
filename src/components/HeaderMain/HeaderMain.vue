@@ -1,15 +1,23 @@
 <template>
-  <div class="header_nav">
-    <signup-component />
-    <login-component />
+  <div>
+    <div class="header_nav" v-if="!getProfile.login">
+      <signup-component />
+      <login-component />
+    </div>
+    <div v-else class="header_nav">
+      <profile-info :getProfile="getProfile" />
+    </div>
   </div>
 </template>
 <script>
 import LoginComponent from "@/components/HeaderMain/LoginComponent";
 import SignupComponent from "@/components/HeaderMain/SignupComponent";
+import { mapGetters } from "vuex";
+import ProfileInfo from "./ProfileInfo.vue";
 
 export default {
-  components: { LoginComponent, SignupComponent },
+  components: { LoginComponent, SignupComponent, ProfileInfo },
+  computed: mapGetters(["getProfile"]),
 };
 </script>
 
