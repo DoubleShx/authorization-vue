@@ -41,7 +41,17 @@
           @change="passwordShow($event)"
         />
       </b-form-group>
-      <h4 v-if="loginError" class="text-danger login_error_message">{{loginError}}</h4>
+      <div v-if="loginError" class="sign_up_suggestion">
+        <h4 class="text-danger login_error_message">
+          {{ loginError }}
+        </h4>
+        <button
+          class="sign_up_button mx-auto mt-2"
+          @click="$emit('toggle-to-signup')"
+        >
+          Sign Up
+        </button>
+      </div>
     </b-form>
     <footer>
       <b-button @click="handleHideModal">Cancel</b-button>
@@ -71,7 +81,7 @@ export default {
     };
   },
   mounted() {
-    this.resetForm()
+    this.resetForm();
   },
   props: {
     formsArray: {
@@ -84,7 +94,7 @@ export default {
     },
     loginError: {
       type: String,
-    }
+    },
   },
   validations: {
     form: {
@@ -158,23 +168,26 @@ export default {
       ];
     },
     resetForm() {
-      this.form = {...Object.keys(this.form).reduce((prevResult, property) => {
-        if (property === 'phone') {
-          return {...prevResult, [property]: '998'}
-        }
-        else {
-          return {...prevResult, [property]: null}
-        }
-      }, {})}
+      let resettedForm = {
+        ...Object.keys(this.form).reduce((prevResult, property) => {
+          if (property === "phone") {
+            return { ...prevResult, [property]: "998" };
+          } else {
+            return { ...prevResult, [property]: null };
+          }
+        }, {}),
+      };
 
-      this.loginError=""
+      let resetedLoginError = "";
+
+      this.$emit("reset-form", resettedForm, resetedLoginError);
 
       this.$nextTick(() => {
         this.$v.$reset();
       });
     },
     handleHideModal() {
-      this.$emit("modal-cancel")
+      this.$emit("modal-cancel");
     },
     onSubmit() {
       this.loadingForm = true;

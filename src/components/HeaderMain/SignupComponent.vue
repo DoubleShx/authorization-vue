@@ -10,6 +10,7 @@
       <form-register
         :formsArray="formsArray"
         :form="form"
+        @reset-form="resetForm"
         @modal-ok="toggleModal"
         @modal-cancel="hideModal"
       />
@@ -25,17 +26,37 @@ export default {
   data() {
     return {
       formsArray: [
-        { title: "login", text: "This is a required field, minLength=6, only alphabet letters (example)", type: "text" },
-        { title: "email", text: "This is a required field, email type (example@mail.ru)", type: "email" },
+        {
+          title: "login",
+          text: "This is a required field, minLength=6, only alphabet letters (example)",
+          type: "text",
+        },
+        {
+          title: "email",
+          text: "This is a required field, email type (example@mail.ru)",
+          type: "email",
+        },
         {
           title: "password",
           text: "This is a required field, minLength=8, must contain [0-9] && [A-Z].",
           type: "password",
           checkbox: "password",
         },
-        { title: "phone", text: "This is a required field, length=12, start of phone number = 998", type: "number" },
-        { title: "name", text: "This is a required field, minLength=2, only alphabet letters (example)", type: "text" },
-        { title: "birthday", text: "This is a required field, registerer age must be 18+", type: "date" },
+        {
+          title: "phone",
+          text: "This is a required field, length=12, start of phone number = 998",
+          type: "number",
+        },
+        {
+          title: "name",
+          text: "This is a required field, minLength=2, only alphabet letters (example)",
+          type: "text",
+        },
+        {
+          title: "birthday",
+          text: "This is a required field, registerer age must be 18+",
+          type: "date",
+        },
       ],
       form: {
         login: null,
@@ -48,18 +69,18 @@ export default {
     };
   },
   methods: {
+    resetForm(form) {
+      this.form = form;
+    },
     hideModal() {
       this.$root.$emit("bv::toggle::modal", "modal-1", "#btnToggle");
     },
     toggleModal(form, currentForm) {
-      let checkOnError = Object.keys(form).reduce(
-        (prevResult, property) => {
-          if (prevResult) {
-            return true;
-          } else return currentForm[property].$anyError;
-        },
-        false
-      );
+      let checkOnError = Object.keys(form).reduce((prevResult, property) => {
+        if (prevResult) {
+          return true;
+        } else return currentForm[property].$anyError;
+      }, false);
       if (!checkOnError) {
         let currentForm = JSON.parse(localStorage.getItem("form"));
         let newForms;
